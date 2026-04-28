@@ -1,7 +1,7 @@
 # SGC — Sistema de Gestão Comercial
 ### Entrega 2 — Backend + API REST + Interface Web
 
-> Wagner Samuel Cardoso · Eduardo Manzur · Gabriel Becker · Guilherme Rocha
+> Wagner Samuel Cardoso · Eduardo Manzur · Gabriel Becker · Guilherme Rocha de Barros
 > Repositório: https://github.com/astonishiing/Commercial-Management-System.git
 
 ---
