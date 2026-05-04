@@ -1,0 +1,68 @@
+{% extends "base/base.html" %}
+{% block title %}Venda #{{ venda.id }}{% endblock %}
+{% block page_title %}<i class="bi bi-receipt me-2"></i>Venda #{{ venda.id }}{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card mb-3">
+      <div class="card-header d-flex justify-content-between">
+        <span>Itens da Venda</span>
+        <span class="badge bg-primary">{{ venda.data|date:"d/m/Y H:i" }}</span>
+      </div>
+      <div class="card-body p-0">
+        <table class="table mb-0">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th class="text-center">Quantidade</th>
+              <th class="text-end">Preço Unitário</th>
+              <th class="text-end">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for item in venda.itens.all %}
+            <tr>
+              <td>{{ item.produto.nome }}</td>
+              <td class="text-center">{{ item.quantidade }}</td>
+              <td class="text-end">R$ {{ item.preco_unitario|floatformat:2 }}</td>
+              <td class="text-end"><strong>R$ {{ item.subtotal|floatformat:2 }}</strong></td>
+            </tr>
+            {% endfor %}
+          </tbody>
+          <tfoot>
+            <tr class="table-success">
+              <td colspan="3" class="text-end fw-bold">Total da Venda:</td>
+              <td class="text-end fw-bold fs-5">R$ {{ venda.valor_total|floatformat:2 }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </div>
+    <a href="/vendas/" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>Voltar
+    </a>
+  </div>
+
+  <div class="col-lg-4">
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-person me-2 text-primary"></i>Cliente</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>{{ venda.cliente.nome }}</strong></p>
+        <p class="mb-1 text-muted"><code>{{ venda.cliente.cpf }}</code></p>
+        <p class="mb-1 text-muted">{{ venda.cliente.email|default:"—" }}</p>
+        <p class="mb-0 text-muted">{{ venda.cliente.telefone|default:"—" }}</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-header"><i class="bi bi-person-badge me-2 text-secondary"></i>Responsável</div>
+      <div class="card-body">
+        <p class="mb-1"><strong>{{ venda.usuario.username }}</strong></p>
+        <span class="badge bg-{% if venda.usuario.perfil == 'ADMIN' %}warning text-dark{% else %}secondary{% endif %}">
+          {{ venda.usuario.perfil }}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

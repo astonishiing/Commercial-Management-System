@@ -1,0 +1,49 @@
+{% extends "base/base.html" %}
+{% block title %}Vendas{% endblock %}
+{% block page_title %}<i class="bi bi-cart3 me-2"></i>Vendas{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span>Histórico de Vendas</span>
+    <a href="/vendas/nova/" class="btn btn-primary btn-sm">
+      <i class="bi bi-cart-plus me-1"></i>Nova Venda
+    </a>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Data</th><th>Cliente</th><th>Usuário</th>
+          <th class="text-center">Itens</th>
+          <th class="text-end">Total</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for v in vendas %}
+        <tr>
+          <td><span class="badge bg-light text-dark">#{{ v.id }}</span></td>
+          <td>{{ v.data|date:"d/m/Y H:i" }}</td>
+          <td><strong>{{ v.cliente.nome }}</strong></td>
+          <td>{{ v.usuario.username }}</td>
+          <td class="text-center">{{ v.itens.count }}</td>
+          <td class="text-end"><strong class="text-success">R$ {{ v.valor_total|floatformat:2 }}</strong></td>
+          <td>
+            <a href="/vendas/{{ v.id }}/" class="btn btn-sm btn-outline-secondary">
+              <i class="bi bi-eye"></i>
+            </a>
+          </td>
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="7" class="text-center text-muted py-4">
+            Nenhuma venda registrada. <a href="/vendas/nova/">Registre a primeira!</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

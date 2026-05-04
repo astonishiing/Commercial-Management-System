@@ -1,0 +1,64 @@
+{% extends "base/base.html" %}
+{% block title %}Clientes{% endblock %}
+{% block page_title %}<i class="bi bi-people me-2"></i>Clientes{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <form method="get" class="d-flex gap-2" style="min-width:220px">
+      <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm"
+             placeholder="Buscar por nome ou CPF…"/>
+      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-search"></i></button>
+      {% if q %}<a href="/clientes/" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x"></i></a>{% endif %}
+    </form>
+    {% if pode_editar %}
+    <a href="/clientes/novo/" class="btn btn-primary btn-sm">
+      <i class="bi bi-person-plus me-1"></i>Novo Cliente
+    </a>
+    {% endif %}
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Nome</th><th>CPF</th><th>E-mail</th><th>Telefone</th>
+          {% if pode_editar %}<th class="text-end">Ações</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in clientes %}
+        <tr>
+          <td>{{ c.id }}</td>
+          <td><strong>{{ c.nome }}</strong></td>
+          <td><code>{{ c.cpf }}</code></td>
+          <td>{{ c.email|default:"—" }}</td>
+          <td>{{ c.telefone|default:"—" }}</td>
+          {% if pode_editar %}
+          <td class="text-end">
+            <a href="/clientes/{{ c.id }}/editar/" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="post" action="/clientes/{{ c.id }}/excluir/" class="d-inline"
+                  onsubmit="return confirm('Remover {{ c.nome }}?')">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="{% if pode_editar %}6{% else %}5{% endif %}" class="text-center text-muted py-4">
+            Nenhum cliente encontrado.
+            {% if not q and pode_editar %}<a href="/clientes/novo/">Cadastre o primeiro!</a>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-muted" style="font-size:.82rem">
+    {{ clientes|length }} cliente(s) encontrado(s)
+  </div>
+</div>
+{% endblock %}

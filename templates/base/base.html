@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}SGC{% endblock %} — Sistema de Gestão Comercial</title>
+
+  <!-- Bootstrap 5 -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <!-- Bootstrap Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+
+  <style>
+    :root {
+      --sgc-primary:   #1a3c5e;
+      --sgc-secondary: #2e86c1;
+      --sgc-accent:    #f39c12;
+      --sgc-sidebar-w: 240px;
+    }
+
+    body { background: #f4f6f9; font-family: 'Segoe UI', sans-serif; }
+
+    /* ── Sidebar ── */
+    #sidebar {
+      position: fixed; top: 0; left: 0; bottom: 0;
+      width: var(--sgc-sidebar-w);
+      background: var(--sgc-primary);
+      display: flex; flex-direction: column;
+      z-index: 1000; transition: width .25s;
+      overflow: hidden;
+    }
+    #sidebar .brand {
+      padding: 1.25rem 1rem;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: .5px;
+      border-bottom: 1px solid rgba(255,255,255,.1);
+      white-space: nowrap;
+    }
+    #sidebar .brand span { color: var(--sgc-accent); }
+    #sidebar nav { flex: 1; padding: .75rem 0; overflow-y: auto; }
+    #sidebar nav a {
+      display: flex; align-items: center; gap: .65rem;
+      color: rgba(255,255,255,.75);
+      text-decoration: none;
+      padding: .6rem 1.25rem;
+      font-size: .93rem;
+      white-space: nowrap;
+      transition: background .2s, color .2s;
+    }
+    #sidebar nav a:hover,
+    #sidebar nav a.active {
+      background: rgba(255,255,255,.1);
+      color: #fff;
+    }
+    #sidebar nav a i { font-size: 1.1rem; flex-shrink: 0; }
+    #sidebar .sidebar-footer {
+      padding: .75rem 1rem;
+      border-top: 1px solid rgba(255,255,255,.1);
+      color: rgba(255,255,255,.55);
+      font-size: .8rem;
+    }
+
+    /* ── Main content ── */
+    #main {
+      margin-left: var(--sgc-sidebar-w);
+      min-height: 100vh;
+      display: flex; flex-direction: column;
+    }
+
+    /* ── Top bar ── */
+    #topbar {
+      background: #fff;
+      border-bottom: 1px solid #e2e8f0;
+      padding: .6rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between;
+      position: sticky; top: 0; z-index: 900;
+    }
+    #topbar .page-title { font-weight: 600; color: var(--sgc-primary); font-size: 1.05rem; }
+    #topbar .user-badge {
+      display: flex; align-items: center; gap: .5rem;
+      font-size: .88rem; color: #555;
+    }
+    #topbar .user-badge .badge { font-size: .72rem; }
+
+    /* ── Content area ── */
+    .content-area { padding: 1.75rem; flex: 1; }
+
+    /* ── Cards ── */
+    .card { border: none; border-radius: .75rem; box-shadow: 0 1px 6px rgba(0,0,0,.07); }
+    .card-header {
+      background: #fff; border-bottom: 1px solid #eef0f3;
+      font-weight: 600; border-radius: .75rem .75rem 0 0 !important;
+      padding: 1rem 1.25rem;
+    }
+
+    /* ── Stat cards ── */
+    .stat-card { border-radius: .75rem; color: #fff; padding: 1.25rem 1.5rem; }
+    .stat-card .stat-icon { font-size: 2.2rem; opacity: .85; }
+    .stat-card .stat-value { font-size: 1.9rem; font-weight: 700; }
+    .stat-card .stat-label { font-size: .82rem; opacity: .85; }
+
+    /* ── Table ── */
+    .table thead th {
+      background: #f8f9fb;
+      font-size: .82rem;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: #666;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .table td { vertical-align: middle; font-size: .93rem; }
+
+    /* ── Alerts ── */
+    .alert { border-radius: .6rem; font-size: .9rem; }
+
+    /* ── Buttons ── */
+    .btn-primary   { background: var(--sgc-secondary); border-color: var(--sgc-secondary); }
+    .btn-primary:hover { background: #2574a9; border-color: #2574a9; }
+
+    /* ── Responsive ── */
+    @media (max-width: 768px) {
+      #sidebar { width: 60px; }
+      #sidebar .brand span,
+      #sidebar nav a span,
+      #sidebar .sidebar-footer { display: none; }
+      #main { margin-left: 60px; }
+    }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+<!-- ══ SIDEBAR ══ -->
+<div id="sidebar">
+  <div class="brand"><i class="bi bi-shop"></i> <span>SGC</span></div>
+  <nav>
+    <a href="/dashboard/" class="{% if request.resolver_match.url_name == 'dashboard' %}active{% endif %}">
+      <i class="bi bi-speedometer2"></i><span>Dashboard</span>
+    </a>
+    <a href="/clientes/" class="{% if 'cliente' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-people"></i><span>Clientes</span>
+    </a>
+    <a href="/produtos/" class="{% if 'produto' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-box-seam"></i><span>Produtos</span>
+    </a>
+    <a href="/vendas/" class="{% if 'venda' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-cart3"></i><span>Vendas</span>
+    </a>
+    <a href="/relatorios/" class="{% if 'relatorio' in request.resolver_match.url_name %}active{% endif %}">
+      <i class="bi bi-bar-chart-line"></i><span>Relatórios</span>
+    </a>
+  </nav>
+  <div class="sidebar-footer">
+    <i class="bi bi-info-circle"></i> SGC v1.0
+  </div>
+</div>
+
+<!-- ══ MAIN ══ -->
+<div id="main">
+
+  <!-- Top bar -->
+  <div id="topbar">
+    <span class="page-title">{% block page_title %}{% endblock %}</span>
+    <div class="user-badge">
+      <i class="bi bi-person-circle fs-5"></i>
+      <span>{{ request.user.username }}</span>
+      {% if request.user.is_admin %}
+        <span class="badge bg-warning text-dark">ADMIN</span>
+      {% else %}
+        <span class="badge bg-secondary">FUNCIONÁRIO</span>
+      {% endif %}
+      <a href="/auth/logout/" class="btn btn-sm btn-outline-secondary ms-2">
+        <i class="bi bi-box-arrow-right"></i>
+      </a>
+    </div>
+  </div>
+
+  <!-- Mensagens flash -->
+  <div class="px-4 pt-3">
+    {% for msg in messages %}
+      <div class="alert alert-{% if msg.tags == 'error' %}danger{% else %}{{ msg.tags }}{% endif %} alert-dismissible fade show" role="alert">
+        {{ msg }}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+    {% endfor %}
+  </div>
+
+  <!-- Conteúdo da página -->
+  <div class="content-area">
+    {% block content %}{% endblock %}
+  </div>
+
+</div><!-- /#main -->
+
+<!-- Bootstrap JS -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<!-- Chart.js (para relatórios) -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
+{% block extra_js %}{% endblock %}
+</body>
+</html>

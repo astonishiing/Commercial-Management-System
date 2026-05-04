@@ -1,0 +1,146 @@
+{% extends "base/base.html" %}
+{% block title %}Nova Venda{% endblock %}
+{% block page_title %}<i class="bi bi-cart-plus me-2"></i>Nova Venda{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+
+  <!-- Formulário -->
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="card-header">Dados da Venda</div>
+      <div class="card-body">
+        <form method="post" id="formVenda">
+          {% csrf_token %}
+
+          <!-- Cliente -->
+          <div class="mb-4">
+            <label class="form-label fw-semibold">Cliente <span class="text-danger">*</span></label>
+            <select name="cliente_id" class="form-select" required>
+              <option value="">— Selecione o cliente —</option>
+              {% for c in clientes %}
+                <option value="{{ c.id }}">{{ c.nome }} ({{ c.cpf }})</option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Itens -->
+          <label class="form-label fw-semibold">Itens da Venda <span class="text-danger">*</span></label>
+          <div id="itens-container">
+            <!-- linhas de itens geradas pelo JS -->
+          </div>
+
+          <button type="button" id="btn-add-item" class="btn btn-outline-primary btn-sm mt-2">
+            <i class="bi bi-plus-circle me-1"></i>Adicionar Item
+          </button>
+
+          <hr class="my-4"/>
+          <div class="d-flex justify-content-between align-items-center">
+            <div class="fs-5 fw-bold text-success">
+              Total: R$ <span id="total-geral">0,00</span>
+            </div>
+            <div class="d-flex gap-2">
+              <a href="/vendas/" class="btn btn-outline-secondary">Cancelar</a>
+              <button type="submit" class="btn btn-primary" id="btn-salvar" disabled>
+                <i class="bi bi-check-lg me-1"></i>Registrar Venda
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Painel lateral: resumo -->
+  <div class="col-lg-4">
+    <div class="card">
+      <div class="card-header"><i class="bi bi-receipt me-2 text-primary"></i>Resumo</div>
+      <div class="card-body">
+        <div id="resumo-lista" class="text-muted" style="font-size:.88rem">
+          Nenhum item adicionado.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const PRODUTOS = {{ produtos_json|safe }};
+let itemCount = 0;
+
+function formatReal(v) {
+  return v.toLocaleString('pt-BR', {minimumFractionDigits:2, maximumFractionDigits:2});
+}
+
+function calcularTotais() {
+  let total = 0;
+  const linhas = document.querySelectorAll('.item-linha');
+  const resumo = [];
+
+  linhas.forEach(linha => {
+    const sel = linha.querySelector('select');
+    const qty = parseInt(linha.querySelector('input[type=number]').value) || 0;
+    const pid = parseInt(sel.value);
+    const prod = PRODUTOS.find(p => p.id === pid);
+    if (prod && qty > 0) {
+      const sub = prod.preco * qty;
+      total += sub;
+      resumo.push(`${prod.nome} × ${qty} = R$ ${formatReal(sub)}`);
+    }
+  });
+
+  document.getElementById('total-geral').textContent = formatReal(total);
+  const el = document.getElementById('resumo-lista');
+  el.innerHTML = resumo.length
+    ? resumo.map(r => `<div class="mb-1"><i class="bi bi-dot"></i>${r}</div>`).join('')
+    : '<span class="text-muted">Nenhum item adicionado.</span>';
+
+  document.getElementById('btn-salvar').disabled = resumo.length === 0;
+}
+
+function addItem() {
+  itemCount++;
+  const div = document.createElement('div');
+  div.className = 'item-linha row g-2 mb-2 align-items-center';
+  div.id = `item-${itemCount}`;
+
+  const options = PRODUTOS.map(p =>
+    `<option value="${p.id}">${p.nome} — R$ ${formatReal(p.preco)} (est: ${p.estoque})</option>`
+  ).join('');
+
+  div.innerHTML = `
+    <div class="col-sm-7">
+      <select name="produto_id[]" class="form-select form-select-sm" required onchange="calcularTotais()">
+        <option value="">— Produto —</option>
+        ${options}
+      </select>
+    </div>
+    <div class="col-sm-3">
+      <input type="number" name="quantidade[]" class="form-control form-control-sm"
+             min="1" value="1" placeholder="Qtd" required oninput="calcularTotais()"/>
+    </div>
+    <div class="col-sm-2 text-end">
+      <button type="button" class="btn btn-outline-danger btn-sm"
+              onclick="removeItem('item-${itemCount}')">
+        <i class="bi bi-trash"></i>
+      </button>
+    </div>
+  `;
+
+  document.getElementById('itens-container').appendChild(div);
+  calcularTotais();
+}
+
+function removeItem(id) {
+  document.getElementById(id)?.remove();
+  calcularTotais();
+}
+
+// Adiciona a primeira linha automaticamente
+document.getElementById('btn-add-item').addEventListener('click', addItem);
+addItem();
+</script>
+{% endblock %}

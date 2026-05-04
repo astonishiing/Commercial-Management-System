@@ -1,0 +1,52 @@
+{% extends "base/base.html" %}
+{% block title %}Relatórios{% endblock %}
+{% block page_title %}<i class="bi bi-bar-chart-line me-2"></i>Relatórios{% endblock %}
+
+{% block content %}
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-person-lines-fill text-primary" style="font-size:2.5rem"></i>
+        <h5 class="mt-3 mb-2">Por Cliente</h5>
+        <p class="text-muted mb-4" style="font-size:.88rem">
+          Visualize todas as vendas de um cliente específico, com o total acumulado.
+        </p>
+        <a href="/relatorios/cliente/" class="btn btn-primary">
+          <i class="bi bi-arrow-right-circle me-1"></i>Gerar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-calendar-range text-success" style="font-size:2.5rem"></i>
+        <h5 class="mt-3 mb-2">Por Período</h5>
+        <p class="text-muted mb-4" style="font-size:.88rem">
+          Analise as vendas entre duas datas, com gráfico de evolução diária.
+        </p>
+        <a href="/relatorios/periodo/" class="btn btn-success">
+          <i class="bi bi-arrow-right-circle me-1"></i>Gerar
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card h-100">
+      <div class="card-body text-center py-4">
+        <i class="bi bi-box-seam text-warning" style="font-size:2.5rem"></i>
+        <h5 class="mt-3 mb-2">Por Produto</h5>
+        <p class="text-muted mb-4" style="font-size:.88rem">
+          Veja quais produtos geraram mais receita e quantidades vendidas.
+        </p>
+        <a href="/relatorios/produto/" class="btn btn-warning">
+          <i class="bi bi-arrow-right-circle me-1"></i>Gerar
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

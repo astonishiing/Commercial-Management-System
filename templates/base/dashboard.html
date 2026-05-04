@@ -1,0 +1,191 @@
+{% extends "base/base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}<i class="bi bi-speedometer2 me-2"></i>Dashboard{% endblock %}
+
+{% block content %}
+<!-- ── Stat cards ── -->
+<div class="row g-3 mb-4">
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#1a3c5e,#2e86c1)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value">{{ total_clientes }}</div>
+          <div class="stat-label">Clientes Cadastrados</div>
+        </div>
+        <i class="bi bi-people stat-icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#117a65,#1abc9c)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value">{{ total_produtos }}</div>
+          <div class="stat-label">Produtos Cadastrados</div>
+        </div>
+        <i class="bi bi-box-seam stat-icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c3483,#9b59b6)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value">{{ total_vendas }}</div>
+          <div class="stat-label">Vendas Realizadas</div>
+        </div>
+        <i class="bi bi-cart3 stat-icon"></i>
+      </div>
+    </div>
+  </div>
+  <div class="col-sm-6 col-xl-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#b7950b,#f39c12)">
+      <div class="d-flex justify-content-between align-items-start">
+        <div>
+          <div class="stat-value" style="font-size:1.4rem">R$ {{ receita_total|floatformat:2 }}</div>
+          <div class="stat-label">Receita Total</div>
+        </div>
+        <i class="bi bi-cash-coin stat-icon"></i>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Gráfico anual de vendas (OBRIGATÓRIO pela documentação) ── -->
+<div class="card mb-4">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <span><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Receita Mensal — {{ ano_atual }}</span>
+    <a href="/relatorios/periodo/" class="btn btn-sm btn-outline-primary">Ver detalhes</a>
+  </div>
+  <div class="card-body">
+    <canvas id="graficoAnual" height="70"></canvas>
+  </div>
+</div>
+
+<!-- ── Últimas vendas + Estoque crítico ── -->
+<div class="row g-3">
+  <div class="col-lg-7">
+    <div class="card">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-clock-history me-2 text-primary"></i>Últimas Vendas</span>
+        <a href="/vendas/" class="btn btn-sm btn-outline-primary">Ver todas</a>
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr><th>#</th><th>Cliente</th><th>Data</th><th class="text-end">Total</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for v in ultimas_vendas %}
+            <tr>
+              <td><span class="badge bg-light text-dark">#{{ v.id }}</span></td>
+              <td>{{ v.cliente.nome }}</td>
+              <td>{{ v.data|date:"d/m/Y H:i" }}</td>
+              <td class="text-end"><strong class="text-success">R$ {{ v.valor_total|floatformat:2 }}</strong></td>
+              <td>
+                <a href="/vendas/{{ v.id }}/" class="btn btn-sm btn-outline-secondary">
+                  <i class="bi bi-eye"></i>
+                </a>
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-4">Nenhuma venda registrada ainda.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <!-- Ações rápidas -->
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-lightning-charge me-2 text-warning"></i>Ações Rápidas</div>
+      <div class="card-body d-grid gap-2">
+        <a href="/vendas/nova/" class="btn btn-primary">
+          <i class="bi bi-cart-plus me-2"></i>Nova Venda
+        </a>
+        {% if request.user.is_admin %}
+        <a href="/clientes/novo/" class="btn btn-outline-primary">
+          <i class="bi bi-person-plus me-2"></i>Novo Cliente
+        </a>
+        <a href="/produtos/novo/" class="btn btn-outline-primary">
+          <i class="bi bi-plus-square me-2"></i>Novo Produto
+        </a>
+        {% endif %}
+        <a href="/relatorios/" class="btn btn-outline-secondary">
+          <i class="bi bi-bar-chart me-2"></i>Relatórios
+        </a>
+      </div>
+    </div>
+
+    <!-- Estoque crítico -->
+    {% if estoque_critico %}
+    <div class="card">
+      <div class="card-header text-danger">
+        <i class="bi bi-exclamation-triangle me-2"></i>Estoque Crítico
+      </div>
+      <div class="card-body p-0">
+        <table class="table table-sm mb-0">
+          <tbody>
+            {% for p in estoque_critico %}
+            <tr>
+              <td>{{ p.nome }}</td>
+              <td class="text-end">
+                {% if p.quantidade_estoque == 0 %}
+                  <span class="badge bg-danger">Esgotado</span>
+                {% else %}
+                  <span class="badge bg-warning text-dark">{{ p.quantidade_estoque }} un.</span>
+                {% endif %}
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Gráfico anual de vendas — representação gráfica das vendas anuais (RF exigido)
+const ctx = document.getElementById('graficoAnual').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: {{ grafico_labels|safe }},
+    datasets: [{
+      label: 'Receita (R$)',
+      data: {{ grafico_valores|safe }},
+      fill: true,
+      backgroundColor: 'rgba(46, 134, 193, 0.12)',
+      borderColor: 'rgba(46, 134, 193, 1)',
+      borderWidth: 2.5,
+      pointBackgroundColor: 'rgba(46, 134, 193, 1)',
+      pointRadius: 5,
+      tension: 0.4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: ctx => 'R$ ' + ctx.parsed.y.toLocaleString('pt-BR', {minimumFractionDigits:2})
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

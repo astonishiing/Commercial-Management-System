@@ -1,0 +1,116 @@
+{% extends "base/base.html" %}
+{% block title %}Relatório por Período{% endblock %}
+{% block page_title %}<i class="bi bi-calendar-range me-2"></i>Relatório por Período{% endblock %}
+
+{% block content %}
+<div class="card mb-4">
+  <div class="card-header">Filtro de Período</div>
+  <div class="card-body">
+    <form method="get" class="row g-3 align-items-end">
+      <div class="col-sm-4">
+        <label class="form-label fw-semibold">Data Início</label>
+        <input type="date" name="inicio" class="form-control" value="{{ data_inicio }}" required/>
+      </div>
+      <div class="col-sm-4">
+        <label class="form-label fw-semibold">Data Fim</label>
+        <input type="date" name="fim" class="form-control" value="{{ data_fim }}" required/>
+      </div>
+      <div class="col-sm-4">
+        <button type="submit" class="btn btn-success w-100">
+          <i class="bi bi-search me-1"></i>Gerar Relatório
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+{% if dados %}
+  {% if dados.erro %}
+    <div class="alert alert-danger">{{ dados.erro }}</div>
+  {% else %}
+    <!-- Totalizadores -->
+    <div class="row g-3 mb-4">
+      <div class="col-sm-6">
+        <div class="stat-card" style="background:linear-gradient(135deg,#117a65,#1abc9c)">
+          <div class="stat-label">Total de Vendas</div>
+          <div class="stat-value">{{ dados.total_vendas }}</div>
+        </div>
+      </div>
+      <div class="col-sm-6">
+        <div class="stat-card" style="background:linear-gradient(135deg,#b7950b,#f39c12)">
+          <div class="stat-label">Receita do Período</div>
+          <div class="stat-value">R$ {{ dados.total_geral|floatformat:2 }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gráfico -->
+    {% if grafico_labels != "[]" %}
+    <div class="card mb-4">
+      <div class="card-header"><i class="bi bi-graph-up me-2 text-success"></i>Evolução Diária de Vendas</div>
+      <div class="card-body">
+        <canvas id="graficoVendas" height="80"></canvas>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Tabela -->
+    <div class="card">
+      <div class="card-header">Detalhamento</div>
+      <div class="card-body p-0">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr><th>#</th><th>Data</th><th>Cliente</th><th class="text-center">Itens</th><th class="text-end">Total</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for v in dados.vendas %}
+            <tr>
+              <td>#{{ v.id }}</td>
+              <td>{{ v.data }}</td>
+              <td>{{ v.cliente }}</td>
+              <td class="text-center">{{ v.itens }}</td>
+              <td class="text-end text-success fw-semibold">R$ {{ v.total|floatformat:2 }}</td>
+              <td><a href="/vendas/{{ v.id }}/" class="btn btn-sm btn-outline-secondary"><i class="bi bi-eye"></i></a></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="text-center text-muted py-3">Nenhuma venda no período.</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+{% if dados and not dados.erro and grafico_labels != "[]" %}
+<script>
+const ctx = document.getElementById('graficoVendas').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ grafico_labels|safe }},
+    datasets: [{
+      label: 'Receita (R$)',
+      data: {{ grafico_values|safe }},
+      backgroundColor: 'rgba(46, 134, 193, 0.6)',
+      borderColor: 'rgba(46, 134, 193, 1)',
+      borderWidth: 1,
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+      }
+    }
+  }
+});
+</script>
+{% endif %}
+{% endblock %}

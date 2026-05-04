@@ -1,0 +1,80 @@
+{% extends "base/base.html" %}
+{% block title %}Relatório por Produto{% endblock %}
+{% block page_title %}<i class="bi bi-box-seam me-2"></i>Relatório por Produto{% endblock %}
+
+{% block content %}
+<!-- Gráfico Top 10 -->
+<div class="card mb-4">
+  <div class="card-header"><i class="bi bi-trophy me-2 text-warning"></i>Top 10 Produtos por Receita</div>
+  <div class="card-body">
+    <canvas id="graficoProdutos" height="80"></canvas>
+  </div>
+</div>
+
+<!-- Tabela completa -->
+<div class="card">
+  <div class="card-header">
+    Todos os Produtos Vendidos
+    <span class="badge bg-secondary ms-2">{{ dados.total_produtos }}</span>
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>Ranking</th><th>Produto</th>
+          <th class="text-center">Qtd. Vendida</th>
+          <th class="text-end">Receita Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in dados.produtos %}
+        <tr>
+          <td>
+            {% if forloop.counter == 1 %}<i class="bi bi-trophy-fill text-warning"></i>
+            {% elif forloop.counter == 2 %}<i class="bi bi-trophy-fill text-secondary"></i>
+            {% elif forloop.counter == 3 %}<i class="bi bi-trophy-fill text-danger"></i>
+            {% else %}{{ forloop.counter }}{% endif %}
+          </td>
+          <td><strong>{{ p.nome }}</strong></td>
+          <td class="text-center">{{ p.quantidade_total }}</td>
+          <td class="text-end text-success fw-semibold">R$ {{ p.receita_total|floatformat:2 }}</td>
+        </tr>
+        {% empty %}
+        <tr><td colspan="4" class="text-center text-muted py-4">Nenhuma venda registrada ainda.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const ctx = document.getElementById('graficoProdutos').getContext('2d');
+new Chart(ctx, {
+  type: 'bar',
+  data: {
+    labels: {{ grafico_nomes|safe }},
+    datasets: [{
+      label: 'Receita (R$)',
+      data: {{ grafico_receitas|safe }},
+      backgroundColor: [
+        '#2e86c1','#1abc9c','#9b59b6','#f39c12','#e74c3c',
+        '#3498db','#27ae60','#8e44ad','#e67e22','#c0392b'
+      ].slice(0, {{ grafico_nomes|safe }}.length),
+      borderRadius: 4,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        ticks: { callback: v => 'R$ ' + v.toLocaleString('pt-BR') }
+      }
+    }
+  }
+});
+</script>
+{% endblock %}

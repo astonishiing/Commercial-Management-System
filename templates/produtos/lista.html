@@ -1,0 +1,76 @@
+{% extends "base/base.html" %}
+{% block title %}Produtos{% endblock %}
+{% block page_title %}<i class="bi bi-box-seam me-2"></i>Produtos{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+    <form method="get" class="d-flex gap-2">
+      <input type="text" name="q" value="{{ q }}" class="form-control form-control-sm"
+             placeholder="Buscar produto…"/>
+      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-search"></i></button>
+      {% if q %}<a href="/produtos/" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x"></i></a>{% endif %}
+    </form>
+    {% if pode_editar %}
+    <a href="/produtos/novo/" class="btn btn-primary btn-sm">
+      <i class="bi bi-plus-square me-1"></i>Novo Produto
+    </a>
+    {% endif %}
+  </div>
+  <div class="card-body p-0">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th>#</th><th>Nome</th><th>Descrição</th>
+          <th class="text-end">Preço</th>
+          <th class="text-center">Estoque</th>
+          {% if pode_editar %}<th class="text-end">Ações</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+        {% for p in produtos %}
+        <tr>
+          <td>{{ p.id }}</td>
+          <td><strong>{{ p.nome }}</strong></td>
+          <td class="text-muted" style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+            {{ p.descricao|default:"—" }}
+          </td>
+          <td class="text-end">R$ {{ p.preco|floatformat:2 }}</td>
+          <td class="text-center">
+            {% if p.quantidade_estoque == 0 %}
+              <span class="badge bg-danger">Sem estoque</span>
+            {% elif p.quantidade_estoque <= 5 %}
+              <span class="badge bg-warning text-dark">{{ p.quantidade_estoque }}</span>
+            {% else %}
+              <span class="badge bg-success">{{ p.quantidade_estoque }}</span>
+            {% endif %}
+          </td>
+          {% if pode_editar %}
+          <td class="text-end">
+            <a href="/produtos/{{ p.id }}/editar/" class="btn btn-sm btn-outline-primary">
+              <i class="bi bi-pencil"></i>
+            </a>
+            <form method="post" action="/produtos/{{ p.id }}/excluir/" class="d-inline"
+                  onsubmit="return confirm('Remover {{ p.nome }}?')">
+              {% csrf_token %}
+              <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+            </form>
+          </td>
+          {% endif %}
+        </tr>
+        {% empty %}
+        <tr>
+          <td colspan="{% if pode_editar %}6{% else %}5{% endif %}" class="text-center text-muted py-4">
+            Nenhum produto encontrado.
+            {% if not q and pode_editar %}<a href="/produtos/novo/">Cadastre o primeiro!</a>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="card-footer text-muted" style="font-size:.82rem">
+    {{ produtos|length }} produto(s) encontrado(s)
+  </div>
+</div>
+{% endblock %}
