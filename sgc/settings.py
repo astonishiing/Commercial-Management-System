@@ -1,6 +1,6 @@
 """
 SGC - Sistema de Gestão Comercial
-Configurações — Entrega 2 (Backend + API + Interface Web)
+Configurações — Entrega 3 (Sistema Completo)
 """
 
 from pathlib import Path
@@ -8,7 +8,7 @@ from datetime import timedelta
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-SECRET_KEY = 'django-insecure-sgc-entrega2-change-in-production-xyz123'
+SECRET_KEY = 'django-insecure-sgc-entrega3-change-in-production-xyz123'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
 
@@ -21,6 +21,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'apps.usuarios',
     'apps.clientes',
@@ -69,12 +70,12 @@ DATABASES = {
 
 AUTH_USER_MODEL = 'usuarios.Usuario'
 
-# Entrega 2: SessionAuthentication como padrão (interface web)
-# JWT disponível para testes de API
+# Entrega 3: JWT obrigatório em todas as rotas da API.
+# SessionAuthentication permanece para a interface web (login/logout).
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.SessionAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',
@@ -84,6 +85,8 @@ REST_FRAMEWORK = {
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(hours=8),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
+    'ROTATE_REFRESH_TOKENS': True,
+    'BLACKLIST_AFTER_ROTATION': True,
     'AUTH_HEADER_TYPES': ('Bearer',),
 }
 
@@ -103,3 +106,17 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/auth/login/'
 LOGIN_REDIRECT_URL = '/'
 LOGOUT_REDIRECT_URL = '/auth/login/'
+
+# ── E-mail: Recuperação de senha (Entrega 3) ──────────────────────────
+# Desenvolvimento: imprime o e-mail no console (não precisa de SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+DEFAULT_FROM_EMAIL = 'SGC <noreply@sgc.local>'
+PASSWORD_RESET_TIMEOUT = 3600  # link válido por 1 hora
+
+# Para produção com SMTP (ex: Gmail), troque pelas linhas abaixo:
+# EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST         = 'smtp.gmail.com'
+# EMAIL_PORT         = 587
+# EMAIL_USE_TLS      = True
+# EMAIL_HOST_USER    = 'seu@gmail.com'
+# EMAIL_HOST_PASSWORD = 'sua_senha_de_app'

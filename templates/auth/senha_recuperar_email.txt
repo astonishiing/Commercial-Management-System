@@ -1,0 +1,15 @@
+Olá,
+
+Recebemos uma solicitação de recuperação de senha para sua conta no
+Sistema de Gestão Comercial (SGC).
+
+Clique no link abaixo para criar uma nova senha:
+
+http://{{ protocol }}://{{ domain }}{% url 'password_reset_confirm' uidb64=uid token=token %}
+
+Este link é válido por 1 hora. Após esse prazo, será necessário solicitar um novo.
+
+Se você não solicitou a recuperação de senha, ignore este e-mail com segurança.
+
+—
+Equipe SGC
