@@ -1,6 +1,9 @@
 # SGC — Sistema de Gestão Comercial
 ### Entrega 2 — Backend + API REST + Interface Web
 
+<img width="1517" height="775" alt="image" src="https://github.com/user-attachments/assets/fbec03af-3de6-4cd3-9cb7-70884746a02e" />
+
+
 > Wagner Samuel Cardoso · Eduardo Manzur · Gabriel Becker · Guilherme Rocha de Barros
 > Repositório: https://github.com/astonishiing/Commercial-Management-System.git
 
@@ -22,6 +25,8 @@
 | README atualizado | ✅ |
 
 > **Entrega 3** adicionará: JWT obrigatório em todas as rotas, recuperação de senha por e-mail e documentação final.
+
+<img width="1518" height="768" alt="image" src="https://github.com/user-attachments/assets/3e43b770-cb0e-44c5-b0b4-62de2799b4ef" />
 
 ---
 
